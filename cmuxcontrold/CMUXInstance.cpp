@@ -132,6 +132,7 @@ void CMUXInstance::doOpenChannel(int port) {
     m_channels[port] = channel;
   }
 
+  gsm0710_set_status(&m_ctx, port, GSM0710_FC);
   gsm0710_set_status(&m_ctx, port, GSM0710_DTR | GSM0710_RTS | GSM0710_FC);
 }
 
