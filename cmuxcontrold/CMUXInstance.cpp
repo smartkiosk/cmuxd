@@ -237,12 +237,27 @@ int CMUXInstance::gsm0710_write(struct gsm0710_context *ctx, const void *data,
   return len;
 }
 
-void CMUXInstance::gsm0710_deliver_data(struct gsm0710_context *ctx, int channel,
+void CMUXInstance::gsm0710_deliver_data(struct gsm0710_context *ctx, int port,
                                         const void *data, int len) {
 
   CMUXInstance *instance = static_cast<CMUXInstance *>(ctx->user_data);
 
-  instance->m_channels[channel]->deliverToChannel(data, len);
+
+  CMUXChannel *channel;
+
+  if((unsigned int) port < instance->m_channels.size())
+    channel = instance->m_channels[port];
+  else
+    channel = 0;
+
+  if(channel == 0) {
+    syslog(LOG_WARNING, "%p: attempted to deliver data to nonexistent channel %d. Client died unexpectedly?",
+        instance, port);
+
+    return;
+  }
+
+  channel->deliverToChannel(data, len);
 }
 
 void CMUXInstance::gsm0710_deliver_status(struct gsm0710_context *ctx, int channel,
