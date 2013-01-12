@@ -96,6 +96,12 @@ void CMUXInstance::activate() {
   syslog(LOG_INFO, "%p: activated", this);
 
   gsm0710_startup(&m_ctx, 0);
+
+  // drop all channels
+  for(int i = 1; i <= GSM0710_MAX_CHANNELS; i++) {
+    gsm0710_set_status(&m_ctx, i, GSM0710_RTS | GSM0710_FC);
+    gsm0710_close_channel(&m_ctx, i);
+  }
 }
 
 std::string CMUXInstance::openPort(int port, uid_t owner) {
