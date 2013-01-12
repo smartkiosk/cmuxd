@@ -131,9 +131,13 @@ void CMUXInstance::doOpenChannel(int port) {
     m_parent->installWatcher(channel);
     m_channels[port] = channel;
   }
+
+  gsm0710_set_status(&m_ctx, port, GSM0710_DTR | GSM0710_RTS | GSM0710_FC);
 }
 
 void CMUXInstance::doCloseChannel(int port) {
+  gsm0710_set_status(&m_ctx, port, GSM0710_RTS | GSM0710_FC);
+
   if(m_channels.size() <= (unsigned int) port)
     m_channels.resize(port + 1, 0);
 
