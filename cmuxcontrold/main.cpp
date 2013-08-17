@@ -50,9 +50,15 @@ static int daemonize(void) {
   umask(0);
   chdir("/");
   int null = open("/dev/null", O_RDWR);
-  dup2(STDIN_FILENO, null);
-  dup2(STDOUT_FILENO, null);
-  dup2(STDERR_FILENO, null);
+  
+  if(null == -1) {
+    perror("open");
+    _exit(1);
+  }
+
+  dup2(null, STDIN_FILENO);
+  dup2(null, STDOUT_FILENO);
+  dup2(null, STDERR_FILENO);
   close(null);
 
   pid = fork();
