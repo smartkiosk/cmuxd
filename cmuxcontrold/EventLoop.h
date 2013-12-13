@@ -1,7 +1,7 @@
 #ifndef __EVENTLOOP__H__
 #define __EVENTLOOP__H__
 
-#include <tr1/unordered_set>
+#include <unordered_set>
 
 class DescriptorWatcher;
 
@@ -17,7 +17,7 @@ public:
   void exit(int code);
 
 private:
-  std::tr1::unordered_set<DescriptorWatcher *> m_watchers, m_orphans, m_newcomers;
+  std::unordered_set<DescriptorWatcher *> m_watchers, m_orphans, m_newcomers;
 };
 
 #endif

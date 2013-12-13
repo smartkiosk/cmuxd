@@ -56,7 +56,11 @@ void ControlRequestHandler::handleMessage(CMUX::Package &package) {
         int port = package.readInt();
         if(package.hasError())
           throw std::runtime_error("malformed request");
+#if defined(SO_PEERCRED) || defined(LOCAL_PEERCRED)
         std::string path = m_mux->openPort(port, m_remote->uid());
+#else
+        std::string path = m_mux->openPort(port, getuid());
+#endif
         reply.writeByte(1);
         reply.writeString(path);
 

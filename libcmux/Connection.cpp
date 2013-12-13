@@ -10,10 +10,12 @@
 namespace CMUX {
 
 Connection::Connection() {
-  static const struct sockaddr_un address = {
-    AF_UNIX,
-    "/var/run/cmuxcontrold.sock"
-  };
+  struct sockaddr_un address;
+#ifdef HAVE_SOCKADDR_SUN_LEN
+  address.sun_len = sizeof(address);
+#endif
+  address.sun_family = AF_UNIX;
+  strncpy(address.sun_path, localstatedir "/run/cmuxcontrold.sock", sizeof(address.sun_path));
 
   m_fd = socket(AF_UNIX, SOCK_STREAM, 0);
   if(m_fd == -1)

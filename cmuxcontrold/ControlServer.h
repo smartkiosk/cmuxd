@@ -1,7 +1,7 @@
 #ifndef __CONTROL_SERVER__H__
 #define __CONTROL_SERVER__H__
 
-#include <tr1/unordered_set>
+#include <unordered_set>
 
 #include "DescriptorWatcher.h"
 
@@ -29,7 +29,7 @@ private:
 private:
   EventLoop *m_loop;
   int m_fd;
-  std::tr1::unordered_set<ControlConnection *> m_connections;
+  std::unordered_set<ControlConnection *> m_connections;
 };
 
 #endif

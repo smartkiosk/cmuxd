@@ -13,10 +13,12 @@
 #include "EventLoop.h"
 
 ControlServer::ControlServer(EventLoop *loop) : m_loop(loop) {
-  static const struct sockaddr_un address = {
-    AF_UNIX,
-    "/var/run/cmuxcontrold.sock"
-  };
+  struct sockaddr_un address;
+#ifdef HAVE_SOCKADDR_SUN_LEN
+  address.sun_len = sizeof(address);
+#endif
+  address.sun_family = AF_UNIX;
+  strncpy(address.sun_path, localstatedir "/run/cmuxcontrold.sock", sizeof(address.sun_path));
 
   unlink(address.sun_path);
 

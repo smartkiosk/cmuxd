@@ -1,4 +1,3 @@
-#include <sys/socket.h>
 #include <unistd.h>
 #include <cmux/Package.h>
 #include <errno.h>
@@ -12,14 +11,23 @@
 using namespace CMUX;
 
 ControlConnection::ControlConnection(ControlServer *server, int fd) : m_server(server), m_fd(fd), m_recvBuf(RECEIVE_AREA) {
+#if defined(SO_PEERCRED) || defined(LOCAL_PEERCRED)
   socklen_t len = sizeof(m_cred);
+  int ret;
 
-  if(getsockopt(m_fd, SOL_SOCKET, SO_PEERCRED, &m_cred, &len) == -1) {
+#if defined(LOCAL_PEERCRED)
+  ret = getsockopt(m_fd, SOL_SOCKET, LOCAL_PEERCRED, &m_cred, &len);
+#elif defined(SO_PEERCRED)
+  ret = getsockopt(m_fd, SOL_SOCKET, SO_PEERCRED, &m_cred, &len);
+#endif
+
+  if(ret == -1) {
     ::close(m_fd);
     delete this;
 
     return;
   }
+#endif
 
   m_server->registerConnection(this);
 
@@ -123,6 +131,17 @@ void ControlConnection::sendMessage(Package &package) {
   m_sendBuf.insert(m_sendBuf.end(), data.begin(), data.end());
 }
 
+#if defined(SO_PEERCRED) || defined(LOCAL_PEERCRED)
+
+#if defined(HAVE_STRUCT_XUCRED)
+uid_t ControlConnection::uid() {
+  return m_cred.cr_uid;
+}
+
+gid_t ControlConnection::gid() {
+  return m_cred.cr_groups[0];
+}
+#elif defined(HAVE_STRUCT_UCRED)
 pid_t ControlConnection::pid() {
   return m_cred.pid;
 }
@@ -134,6 +153,9 @@ uid_t ControlConnection::uid() {
 gid_t ControlConnection::gid() {
   return m_cred.gid;
 }
+#endif
+
+#endif
 
 void ControlConnection::abnormal() {
   delete this;

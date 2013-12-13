@@ -23,7 +23,7 @@ void EventLoop::removeWatcher(DescriptorWatcher *watcher) {
 
 int EventLoop::exec() {
   while(1) {
-    std::tr1::unordered_set<DescriptorWatcher *>::iterator it, orphan_it;
+    std::unordered_set<DescriptorWatcher *>::iterator it, orphan_it;
 
     it = m_newcomers.begin();
     while(it != m_newcomers.end()) {
